@@ -7,6 +7,7 @@ import TransactionList from '../../components/transactions/TransactionList';
 import { Alert, AlertDescription } from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import { Plus, X } from 'lucide-react';
+import Modal from '../../components/ui/Modal';
 
 export default function TransactionsPage() {
   const { 
@@ -199,14 +200,16 @@ export default function TransactionsPage() {
         />
       )}
 
-      {/* Edit Transaction Form */}
-      {editingTransaction && (
-        <TransactionForm
-          initialData={editingTransaction}
-          onSubmit={handleEditTransaction}
-          onCancel={handleCancelEdit}
-        />
-      )}
+      {/* Edit Transaction Modal */}
+      <Modal open={!!editingTransaction} onClose={handleCancelEdit}>
+        {editingTransaction && (
+          <TransactionForm
+            initialData={editingTransaction}
+            onSubmit={handleEditTransaction}
+            onCancel={handleCancelEdit}
+          />
+        )}
+      </Modal>
 
       {/* Transaction List */}
       <TransactionList
