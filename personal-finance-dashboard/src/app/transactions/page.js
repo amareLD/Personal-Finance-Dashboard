@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useTransactions } from '../../hooks/useData';
+import { useState, useRef, useEffect } from 'react';
+import { useTransactions, useBudgets } from '../../hooks/useData';
 import TransactionForm from '../../components/transactions/TransactionForm';
 import TransactionList from '../../components/transactions/TransactionList';
 import { Alert, AlertDescription } from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import { Plus, X } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
+import Toast from '../../components/ui/Toast';
 
 export default function TransactionsPage() {
   const { 
@@ -17,11 +18,28 @@ export default function TransactionsPage() {
     deleteTransaction, 
     isLoading 
   } = useTransactions();
+  const { budgets, getBudget } = useBudgets();
   
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [toast, setToast] = useState({ open: false, message: '', type: 'warning' });
   const fileInputRef = useRef();
+
+  const checkBudgetAndNotify = (transactionData) => {
+    if (transactionData.type !== 'expense') return;
+    const budget = getBudget(transactionData.category);
+    if (!budget) return;
+    // Calculate total spent for this category this month
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const spent = transactions.filter(t => t.type === 'expense' && t.category === transactionData.category && new Date(t.date).getMonth() === month && new Date(t.date).getFullYear() === year)
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0) + parseFloat(transactionData.amount);
+    if (spent >= 0.8 * budget.amount) {
+      setToast({ open: true, message: `Warning: You have spent over 80% of your budget for ${transactionData.category}!`, type: 'warning' });
+    }
+  };
 
   const handleAddTransaction = async (transactionData) => {
     try {
@@ -31,7 +49,7 @@ export default function TransactionsPage() {
         type: 'success',
         message: 'Transaction added successfully!'
       });
-      // Clear alert after 3 seconds
+      checkBudgetAndNotify(transactionData);
       setTimeout(() => setAlert(null), 3000);
     } catch (error) {
       setAlert({
@@ -126,6 +144,25 @@ export default function TransactionsPage() {
     reader.readAsText(file);
   };
 
+  // Check budget after any transaction update or add
+  const checkAllBudgets = () => {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    budgets.forEach(budget => {
+      const spent = transactions.filter(t => t.type === 'expense' && t.category === budget.category && new Date(t.date).getMonth() === month && new Date(t.date).getFullYear() === year)
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      if (spent >= 0.8 * budget.amount) {
+        setToast({ open: true, message: `Warning: You have spent over 80% of your budget for ${budget.category}!`, type: 'warning' });
+      }
+    });
+  };
+
+  // Run check on mount and whenever transactions or budgets change
+  useEffect(() => {
+    checkAllBudgets();
+  }, [transactions, budgets]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -136,6 +173,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6">
+      <Toast open={toast.open} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, open: false })} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
