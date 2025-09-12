@@ -1,4 +1,4 @@
-import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, isValid } from 'date-fns';
 import { STORAGE_KEYS, DATE_FORMATS } from './constants';
 
 // Utility function to safely parse numbers
@@ -25,9 +25,19 @@ export const formatPercentage = (value, decimals = 1) => {
 // Format date
 export const formatDate = (date, formatStr = DATE_FORMATS.DISPLAY) => {
   if (!date) return '';
-  
+  let dateObj;
+  if (typeof date === 'string') {
+    // Try ISO first
+    dateObj = parseISO(date);
+    if (!isValid(dateObj)) {
+      // Try native Date parsing for other formats
+      dateObj = new Date(date);
+    }
+  } else {
+    dateObj = date;
+  }
+  if (!isValid(dateObj)) return '';
   try {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
     return format(dateObj, formatStr);
   } catch (error) {
     console.error('Error formatting date:', error);
