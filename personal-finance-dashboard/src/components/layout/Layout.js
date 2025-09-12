@@ -28,7 +28,7 @@ export default function Layout({ children }) {
   const pathname = usePathname();
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -49,7 +49,7 @@ export default function Layout({ children }) {
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                FinDash
+                Fin<span className="text-blue-600 dark:text-blue-400">Dash</span>
               </span>
             </div>
             <Button
@@ -94,7 +94,7 @@ export default function Layout({ children }) {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col lg:pl-64">
+      <div className="w-full flex flex-col ">
         {/* Top bar */}
         <div className="sticky top-0 z-40 flex h-16 flex-shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm lg:px-6">
           <Button
@@ -117,7 +117,7 @@ export default function Layout({ children }) {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg">
           <div className="px-4 py-6 lg:px-6">
             {children}
           </div>
