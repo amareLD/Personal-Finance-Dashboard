@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -25,7 +26,34 @@ const navigation = [
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState('light');
   const pathname = usePathname();
+
+  // Theme logic
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      setTheme(storedTheme);
+      if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 flex">
@@ -45,12 +73,19 @@ export default function Layout({ children }) {
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 Fin<span className="text-blue-600 dark:text-blue-400">Dash</span>
               </span>
+              {/* <button
+                onClick={toggleTheme}
+                className="ml-4 px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs border border-gray-300 dark:border-gray-600 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button> */}
             </div>
             <Button
               variant="ghost"
