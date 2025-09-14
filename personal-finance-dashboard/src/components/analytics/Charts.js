@@ -194,9 +194,9 @@ export const CategorySpendingChart = ({ transactions }) => {
     return categoryTotals
       .filter(item => item.amount > 0) // Only show categories with actual spending
       .sort((a, b) => b.amount - a.amount)
-      .slice(0, 10) // Top 10 categories
+      .slice(0, 4) // Top 4 categories only
       .map((item, index) => ({
-        category: item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category,
+        category: item.category.length > 12 ? item.category.substring(0, 12) + '...' : item.category,
         amount: item.amount,
         fullCategory: item.category,
         color: CHART_COLORS[index % CHART_COLORS.length]
@@ -221,21 +221,22 @@ export const CategorySpendingChart = ({ transactions }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Spending Categories (This Month)</CardTitle>
+        <CardTitle>Top 4 Spending Categories (This Month)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="horizontal" margin={{ top: 5, right: 30, left: 5, bottom: 5 }}>
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                type="number" 
-                tickFormatter={(value) => formatCurrency(value)}
+                dataKey="category"
+                tick={{ fontSize: 12 }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
               />
               <YAxis 
-                dataKey="category" 
-                type="category" 
-                width={120}
+                tickFormatter={(value) => formatCurrency(value)}
                 tick={{ fontSize: 12 }}
               />
               <Tooltip 
@@ -257,7 +258,7 @@ export const CategorySpendingChart = ({ transactions }) => {
               <Bar 
                 dataKey="amount" 
                 fill="#3b82f6"
-                radius={[0, 4, 4, 0]}
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
