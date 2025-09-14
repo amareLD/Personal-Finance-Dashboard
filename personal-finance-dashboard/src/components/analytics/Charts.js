@@ -192,12 +192,14 @@ export const CategorySpendingChart = ({ transactions }) => {
     const categoryTotals = calculateCategoryTotals(expenseTransactions);
     
     return categoryTotals
+      .filter(item => item.amount > 0) // Only show categories with actual spending
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 10) // Top 10 categories
       .map((item, index) => ({
         category: item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category,
         amount: item.amount,
-        fullCategory: item.category
+        fullCategory: item.category,
+        color: CHART_COLORS[index % CHART_COLORS.length]
       }));
   }, [transactions]);
 
@@ -222,12 +224,20 @@ export const CategorySpendingChart = ({ transactions }) => {
         <CardTitle>Top Spending Categories (This Month)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
+        <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="horizontal">
+            <BarChart data={chartData} layout="horizontal" margin={{ top: 5, right: 30, left: 5, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="category" type="category" width={100} />
+              <XAxis 
+                type="number" 
+                tickFormatter={(value) => formatCurrency(value)}
+              />
+              <YAxis 
+                dataKey="category" 
+                type="category" 
+                width={120}
+                tick={{ fontSize: 12 }}
+              />
               <Tooltip 
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
@@ -244,7 +254,11 @@ export const CategorySpendingChart = ({ transactions }) => {
                   return null;
                 }}
               />
-              <Bar dataKey="amount" fill="#3b82f6" />
+              <Bar 
+                dataKey="amount" 
+                fill="#3b82f6"
+                radius={[0, 4, 4, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
