@@ -221,7 +221,7 @@ export const CategorySpendingChart = ({ transactions }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top 4 Spending Categories (This Month)</CardTitle>
+        <CardTitle>Top Spending Categories (This Month)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-80">
